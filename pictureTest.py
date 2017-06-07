@@ -1,27 +1,43 @@
-#############################################
+################################################################################################
+#
 #	Picture Detection Test
-#############################################
-#this will detect the object trained for in a set of images in a directory, usefull if you do not have a camera or want to see what it does on a range of images.
+#
+###############################################################################################
+#
+#	This will detect the object trained for in a set of images in a directory, 
+#	usefull if you do not have a camera or want to see what it does on a range of images.
+#
+###############################################################################################
 import numpy as np
 import cv2
 import os
+import argparse
 
-#directory that holds test images for detection
-testdir = 'Example\Directory'
+parser = argparse.ArgumentParser(description='Will use a XML cascade file generated from OpenCV Haar training to detect objects. Supply a target directory of images to test. A box will be drawn around detection points. The images in the directory will be overwritten.')
 
-#this is the cascade we just made. Call it what you want but the location needs to point to where the file is. 
-cascade = cv2.CascadeClassifier('Cascades\cascade.xml')
+parser.add_argument("directory",
+			help="Directory address of images to test")
 
-lower = np.array([1, 1, 100])  #BGR
-upper = np.array([70, 60, 200])
-facial = False
-color = False
+parser.add_argument("xml",
+			help="Location of cascade xml file")
 
-n = 1
-scaleF = 1.2
-minSize = (20, 20)
+args = parser.parse_args()
 
-for subdir, dirs, files in os.walk(testdir):
+cascade = cv2.CascadeClassifier(args.xml)
+
+#############################################
+#	Tunable variables to check for
+#############################################
+
+n = 1					#	Number of neighbors that the detector will validate against. 
+						#	The higher the numnber, the more noise is filtered but may miss a target.
+
+scaleF = 1.2			#	Scale factor of the trained object to detect for
+
+minSize = (20, 20)		#	Minimum size of the target object trained for. 
+						# 	Should match the size that the image was trained on.
+
+for subdir, dirs, files in os.walk(args.directory):
     for file in files:
         im = os.path.join(subdir, file)
         img = cv2.imread(im)
